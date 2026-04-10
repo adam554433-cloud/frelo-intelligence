@@ -55,16 +55,16 @@ export default function ChatPage() {
 
   return (
     <Shell>
-      <div className="mx-auto flex h-screen max-w-4xl flex-col px-6">
-        <div className="py-8">
-          <div className="flex items-center gap-2 text-sm text-accent-light">
+      <div className="mx-auto flex min-h-[calc(100vh-64px)] lg:min-h-screen max-w-4xl flex-col px-4 sm:px-6">
+        <div className="py-5 sm:py-8">
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-accent-light">
             <Sparkles className="h-4 w-4" />
             <span className="uppercase tracking-[0.2em]">ask anything</span>
           </div>
-          <h1 className="mt-2 font-serif text-3xl font-semibold">Chat with frelo&apos;s brain.</h1>
+          <h1 className="mt-2 font-serif text-2xl sm:text-3xl font-semibold">Chat with frelo&apos;s brain.</h1>
         </div>
 
-        <div className="flex-1 space-y-4 overflow-y-auto pr-2">
+        <div className="flex-1 space-y-3 sm:space-y-4 overflow-y-auto pb-4">
           {messages.length === 0 && (
             <div className="space-y-2">
               <div className="text-sm text-text-muted">Try:</div>
@@ -72,7 +72,7 @@ export default function ChatPage() {
                 <button
                   key={ex}
                   onClick={() => send(ex)}
-                  className="block w-full rounded-card border border-surface-border bg-surface px-5 py-3 text-left text-sm text-text-secondary transition-colors hover:border-accent/40 hover:bg-surface-hover hover:text-text-primary"
+                  className="block w-full rounded-card border border-surface-border bg-surface px-4 sm:px-5 py-3 text-left text-sm text-text-secondary transition-colors hover:border-accent/40 hover:bg-surface-hover hover:text-text-primary active:bg-surface-hover"
                 >
                   {ex}
                 </button>
@@ -83,16 +83,16 @@ export default function ChatPage() {
           {messages.map((m, i) => (
             <div
               key={i}
-              className={`rounded-card p-5 ${
+              className={`rounded-card p-4 sm:p-5 ${
                 m.role === "user"
-                  ? "bg-accent/10 border border-accent/20 ml-12"
-                  : "bg-surface border border-surface-border mr-12"
+                  ? "bg-accent/10 border border-accent/20 ml-4 sm:ml-12"
+                  : "bg-surface border border-surface-border mr-4 sm:mr-12"
               }`}
             >
-              <div className="mb-1 text-xs uppercase tracking-wider text-text-muted">
+              <div className="mb-1 text-[10px] sm:text-xs uppercase tracking-wider text-text-muted">
                 {m.role === "user" ? "you" : "frelo intelligence"}
               </div>
-              <div className="whitespace-pre-wrap text-text-primary">{m.content}</div>
+              <div className="whitespace-pre-wrap text-sm sm:text-base text-text-primary break-words">{m.content}</div>
 
               {m.citations && m.citations.length > 0 && (
                 <details className="mt-4 border-t border-surface-border pt-3">
@@ -106,7 +106,7 @@ export default function ChatPage() {
                         href={c.url ?? "#"}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block rounded-card border border-surface-border bg-chocolate-light/30 p-3 text-xs transition-colors hover:border-accent/30"
+                        className="block rounded-card border border-surface-border bg-chocolate-light/30 p-3 text-xs transition-colors hover:border-accent/30 active:bg-chocolate-light/50"
                       >
                         <div className="flex items-center gap-2 text-accent-light">
                           <span className="uppercase">[src{idx + 1}]</span>
@@ -136,24 +136,25 @@ export default function ChatPage() {
             e.preventDefault();
             send(input);
           }}
-          className="sticky bottom-0 bg-background py-4"
+          className="sticky bottom-0 bg-background py-3 sm:py-4"
         >
           <div className="flex gap-2 rounded-card border border-surface-border bg-surface p-2">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about your audience, competitors, hypotheses..."
-              className="flex-1 bg-transparent px-3 py-2 text-text-primary placeholder:text-text-muted focus:outline-none"
+              placeholder="Ask about your audience..."
+              className="flex-1 min-w-0 bg-transparent px-3 py-2 text-base text-text-primary placeholder:text-text-muted focus:outline-none"
               disabled={loading}
+              enterKeyHint="send"
             />
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="flex items-center gap-2 rounded-card bg-accent-gradient px-5 py-2 font-medium text-chocolate transition-opacity disabled:opacity-40"
+              className="flex shrink-0 items-center gap-2 rounded-card bg-accent-gradient px-4 sm:px-5 py-2 text-sm sm:text-base font-medium text-chocolate transition-opacity disabled:opacity-40"
             >
               <Send className="h-4 w-4" />
-              Ask
+              <span className="hidden sm:inline">Ask</span>
             </button>
           </div>
         </form>

@@ -78,29 +78,29 @@ export default function HypothesesPage() {
 
   return (
     <Shell>
-      <div className="mx-auto max-w-4xl px-6 py-10">
-        <div className="mb-6 flex items-center gap-2 text-sm text-accent-light">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-6 sm:py-10">
+        <div className="mb-4 sm:mb-6 flex items-center gap-2 text-xs sm:text-sm text-accent-light">
           <FlaskConical className="h-4 w-4" />
           <span className="uppercase tracking-[0.2em]">hypothesis engine</span>
         </div>
-        <h1 className="font-serif text-4xl font-semibold">What do you believe?</h1>
+        <h1 className="font-serif text-3xl sm:text-4xl font-semibold">What do you believe?</h1>
         <p className="mt-2 text-text-secondary">
           State an assumption. The engine decomposes it, generates search queries, and ultimately validates or refutes it
           against real evidence.
         </p>
 
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           <textarea
             value={statement}
             onChange={(e) => setStatement(e.target.value)}
             placeholder="e.g. Women 45-60 are underserved in creatine because all branding is gym-bro"
             rows={3}
-            className="w-full rounded-card border border-surface-border bg-surface px-5 py-4 text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none"
+            className="w-full rounded-card border border-surface-border bg-surface px-4 sm:px-5 py-3 sm:py-4 text-base text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none"
           />
           <button
             onClick={create}
             disabled={loading || !statement.trim()}
-            className="mt-3 flex items-center gap-2 rounded-card bg-accent-gradient px-6 py-3 font-medium text-chocolate transition-opacity disabled:opacity-40"
+            className="mt-3 flex w-full sm:w-auto items-center justify-center gap-2 rounded-card bg-accent-gradient px-6 py-3 font-medium text-chocolate transition-opacity disabled:opacity-40 active:opacity-80"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FlaskConical className="h-4 w-4" />}
             Create hypothesis
@@ -118,10 +118,10 @@ export default function HypothesesPage() {
             </div>
           ) : (
             list.map((h) => (
-              <div key={h.id} className="rounded-card border border-surface-border bg-surface p-5">
-                <div className="mb-2 flex items-start justify-between gap-4">
-                  <p className="flex-1 font-serif text-lg text-text-primary">{h.statement}</p>
-                  <span className={`shrink-0 rounded-pill px-3 py-1 text-xs uppercase ${statusStyles[h.status]}`}>
+              <div key={h.id} className="rounded-card border border-surface-border bg-surface p-4 sm:p-5">
+                <div className="mb-2 flex items-start justify-between gap-3">
+                  <p className="flex-1 min-w-0 font-serif text-base sm:text-lg text-text-primary break-words">{h.statement}</p>
+                  <span className={`shrink-0 rounded-pill px-2 sm:px-3 py-1 text-[10px] sm:text-xs uppercase ${statusStyles[h.status]}`}>
                     {h.status}
                   </span>
                 </div>

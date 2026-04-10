@@ -70,12 +70,12 @@ export default function SimulatePage() {
 
   return (
     <Shell>
-      <div className="mx-auto max-w-4xl px-6 py-10">
-        <div className="mb-8">
-          <div className="text-sm uppercase tracking-[0.2em] text-accent-light">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-6 sm:py-10">
+        <div className="mb-6 sm:mb-8">
+          <div className="text-xs sm:text-sm uppercase tracking-[0.2em] text-accent-light">
             {mode === "persona" ? "persona simulator" : "red team"}
           </div>
-          <h1 className="mt-2 font-serif text-4xl font-semibold">
+          <h1 className="mt-2 font-serif text-3xl sm:text-4xl font-semibold">
             {mode === "persona" ? "Test ads before you ship." : "Destroy your assumptions."}
           </h1>
           <p className="mt-2 text-text-secondary">
@@ -85,18 +85,18 @@ export default function SimulatePage() {
           </p>
         </div>
 
-        <div className="mb-6 flex gap-2">
+        <div className="mb-5 sm:mb-6 flex gap-2">
           <button
             onClick={() => setMode("persona")}
-            className={`flex items-center gap-2 rounded-pill border px-4 py-2 text-sm ${
+            className={`flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-pill border px-3 sm:px-4 py-2 text-sm ${
               mode === "persona" ? "border-accent bg-accent/15 text-accent-light" : "border-surface-border text-text-secondary"
             }`}
           >
-            <Theater className="h-4 w-4" /> Persona simulator
+            <Theater className="h-4 w-4" /> <span className="hidden xs:inline">Persona</span> simulator
           </button>
           <button
             onClick={() => setMode("red_team")}
-            className={`flex items-center gap-2 rounded-pill border px-4 py-2 text-sm ${
+            className={`flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-pill border px-3 sm:px-4 py-2 text-sm ${
               mode === "red_team" ? "border-accent bg-accent/15 text-accent-light" : "border-surface-border text-text-secondary"
             }`}
           >
@@ -110,15 +110,15 @@ export default function SimulatePage() {
           rows={4}
           placeholder={
             mode === "persona"
-              ? "Paste your ad copy here — hook, headline, or full script..."
+              ? "Paste your ad copy — hook, headline, or full script..."
               : "e.g. frelo is the best creatine for women over 50"
           }
-          className="w-full rounded-card border border-surface-border bg-surface px-5 py-4 text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none"
+          className="w-full rounded-card border border-surface-border bg-surface px-4 sm:px-5 py-3 sm:py-4 text-base text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none"
         />
         <button
           onClick={run}
           disabled={loading || !input.trim()}
-          className="mt-3 flex items-center gap-2 rounded-card bg-accent-gradient px-6 py-3 font-medium text-chocolate transition-opacity disabled:opacity-40"
+          className="mt-3 flex w-full sm:w-auto items-center justify-center gap-2 rounded-card bg-accent-gradient px-6 py-3 font-medium text-chocolate transition-opacity disabled:opacity-40 active:opacity-80"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : mode === "persona" ? <Theater className="h-4 w-4" /> : <Swords className="h-4 w-4" />}
           {mode === "persona" ? "Run simulation" : "Red-team this"}
@@ -134,19 +134,19 @@ export default function SimulatePage() {
               </div>
             ) : (
               reactions.map((r) => (
-                <div key={r.avatar_id} className="rounded-card border border-surface-border bg-surface p-5">
-                  <div className="mb-2 flex items-center justify-between">
-                    <div>
-                      <div className="font-serif text-lg font-semibold text-text-primary">{r.avatar_name}</div>
+                <div key={r.avatar_id} className="rounded-card border border-surface-border bg-surface p-4 sm:p-5">
+                  <div className="mb-2 flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-serif text-base sm:text-lg font-semibold text-text-primary">{r.avatar_name}</div>
                       <div className={`text-sm ${verdictColors[r.verdict]}`}>
-                        {verdictEmoji[r.verdict]} {r.verdict.replace("_", " ")} · score {r.score}/10
+                        {verdictEmoji[r.verdict]} {r.verdict.replace("_", " ")} · {r.score}/10
                       </div>
                     </div>
-                    <span className={`rounded-pill px-3 py-1 text-xs ${r.would_buy === "yes" ? "bg-success/20 text-success" : r.would_buy === "maybe" ? "bg-warning/20 text-warning" : "bg-danger/20 text-danger"}`}>
-                      buy: {r.would_buy}
+                    <span className={`shrink-0 rounded-pill px-2 sm:px-3 py-1 text-xs ${r.would_buy === "yes" ? "bg-success/20 text-success" : r.would_buy === "maybe" ? "bg-warning/20 text-warning" : "bg-danger/20 text-danger"}`}>
+                      {r.would_buy}
                     </span>
                   </div>
-                  <p className="mt-3 italic text-text-secondary">&ldquo;{r.reaction}&rdquo;</p>
+                  <p className="mt-3 italic text-sm sm:text-base text-text-secondary break-words">&ldquo;{r.reaction}&rdquo;</p>
                   {r.objection && <div className="mt-2 text-sm text-danger">Objection: {r.objection}</div>}
                 </div>
               ))

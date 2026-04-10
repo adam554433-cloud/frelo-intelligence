@@ -39,67 +39,67 @@ export default async function DashboardPage() {
 
   return (
     <Shell>
-      <div className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
-        <div className="mb-10">
-          <div className="mb-3 flex items-center gap-2 text-sm text-accent-light">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-10 lg:py-14">
+        <div className="mb-6 sm:mb-10">
+          <div className="mb-3 flex items-center gap-2 text-xs sm:text-sm text-accent-light">
             <span className="h-1.5 w-1.5 rounded-full bg-accent-light animate-pulse-slow" />
             <span className="uppercase tracking-[0.2em]">brand brain · {stats.ok ? "connected" : "setup pending"}</span>
           </div>
-          <h1 className="font-serif text-4xl font-semibold leading-tight sm:text-5xl">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight">
             What do you want to <span className="bg-brand-gradient bg-clip-text text-transparent">know</span>?
           </h1>
-          <p className="mt-3 max-w-2xl text-lg text-text-secondary">
+          <p className="mt-3 max-w-2xl text-base sm:text-lg text-text-secondary">
             A living intelligence engine for frelo. Test hypotheses, discover avatars, track competitors — all grounded in real consumer voice.
           </p>
         </div>
 
         <Link
           href="/chat"
-          className="group mb-10 block rounded-card border border-surface-border bg-surface p-8 transition-all hover:border-accent/40 hover:bg-surface-hover"
+          className="group mb-6 sm:mb-10 block rounded-card border border-surface-border bg-surface p-5 sm:p-8 transition-all hover:border-accent/40 hover:bg-surface-hover active:bg-surface-hover"
         >
-          <div className="flex items-start justify-between gap-6">
-            <div className="flex-1">
+          <div className="flex items-start justify-between gap-4 sm:gap-6">
+            <div className="flex-1 min-w-0">
               <div className="mb-2 flex items-center gap-2 text-sm text-accent-light">
                 <Sparkles className="h-4 w-4" />
                 Ask Anything
               </div>
-              <div className="font-serif text-2xl text-text-primary">
+              <div className="font-serif text-lg sm:text-2xl text-text-primary">
                 &ldquo;Why are women 45-60 underserved in creatine?&rdquo;
               </div>
               <div className="mt-2 text-sm text-text-secondary">
                 Chat with your brand&apos;s collective intelligence. Every answer cited to real sources.
               </div>
             </div>
-            <ArrowRight className="h-6 w-6 text-text-muted transition-all group-hover:translate-x-1 group-hover:text-accent-light" />
+            <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6 shrink-0 text-text-muted transition-all group-hover:translate-x-1 group-hover:text-accent-light" />
           </div>
         </Link>
 
-        <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-6 sm:mb-10 grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
           <StatCard label="Items ingested" value={stats.items.toLocaleString()} hint={`${stats.sources} sources`} icon="Database" />
           <StatCard label="Avatars" value={stats.avatars} hint="grounded in data" icon="Users" accent />
           <StatCard label="Hypotheses" value={stats.hypotheses} hint="open / tested" icon="FlaskConical" />
           <StatCard label="Alerts" value={stats.alerts} hint="unread" icon="Bell" />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <QuickAction href="/hypotheses" title="Test a hypothesis" body="Write what you believe. The engine finds proof or disproof." />
           <QuickAction href="/avatars" title="Explore avatars" body="Audiences discovered from the voice of real consumers." />
           <QuickAction href="/simulate" title="Simulate personas" body="Test ad copy against synthetic customers before production." />
         </div>
 
         {stats.recentAlerts.length > 0 && (
-          <div className="mt-10">
-            <h2 className="mb-4 font-serif text-2xl font-semibold">Latest alerts</h2>
+          <div className="mt-8 sm:mt-10">
+            <h2 className="mb-4 font-serif text-xl sm:text-2xl font-semibold">Latest alerts</h2>
             <div className="space-y-3">
               {stats.recentAlerts.map((a) => (
                 <div key={a.id} className="rounded-card border border-surface-border bg-surface p-4">
-                  <div className="flex items-start justify-between">
-                    <div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
                       <div className="font-medium text-text-primary">{a.title}</div>
                       <div className="mt-1 text-sm text-text-secondary">{a.body}</div>
                     </div>
                     <span
-                      className={`rounded-pill px-2 py-0.5 text-xs ${
+                      className={`shrink-0 rounded-pill px-2 py-0.5 text-xs ${
                         a.severity === "critical"
                           ? "bg-danger/20 text-danger"
                           : a.severity === "warning"

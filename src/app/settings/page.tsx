@@ -21,35 +21,35 @@ const PIPELINE_STEPS = [
 export default function SettingsPage() {
   return (
     <Shell>
-      <div className="mx-auto max-w-4xl px-6 py-10">
-        <div className="mb-8">
-          <div className="text-sm uppercase tracking-[0.2em] text-accent-light">settings</div>
-          <h1 className="mt-2 font-serif text-4xl font-semibold">Configuration & ops.</h1>
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-6 sm:py-10">
+        <div className="mb-6 sm:mb-8">
+          <div className="text-xs sm:text-sm uppercase tracking-[0.2em] text-accent-light">settings</div>
+          <h1 className="mt-2 font-serif text-3xl sm:text-4xl font-semibold">Configuration & ops.</h1>
         </div>
 
-        <div className="rounded-card border border-surface-border bg-surface p-6">
-          <h2 className="font-serif text-xl font-semibold">1. Run database schema</h2>
+        <div className="rounded-card border border-surface-border bg-surface p-4 sm:p-6">
+          <h2 className="font-serif text-lg sm:text-xl font-semibold">1. Run database schema</h2>
           <p className="mt-1 text-sm text-text-secondary">
             Open Supabase SQL editor, paste <code className="rounded bg-chocolate-light/50 px-1.5 py-0.5 text-xs">supabase/schema.sql</code>,
             and run it once. Safe to re-run — uses <code className="text-accent-light">if not exists</code>.
           </p>
         </div>
 
-        <div className="mt-6 rounded-card border border-surface-border bg-surface p-6">
-          <h2 className="font-serif text-xl font-semibold">2. Environment variables</h2>
+        <div className="mt-6 rounded-card border border-surface-border bg-surface p-4 sm:p-6">
+          <h2 className="font-serif text-lg sm:text-xl font-semibold">2. Environment variables</h2>
           <p className="mt-1 text-sm text-text-secondary">Set in Vercel → Project Settings → Environment Variables.</p>
           <ul className="mt-5 space-y-2">
             {REQUIRED_ENV.map((e) => (
-              <li key={e.key} className="flex items-center justify-between rounded-card bg-chocolate-light/30 px-4 py-3">
-                <code className="text-sm text-accent-light">{e.key}</code>
+              <li key={e.key} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 rounded-card bg-chocolate-light/30 px-4 py-3">
+                <code className="text-xs sm:text-sm text-accent-light break-all">{e.key}</code>
                 <span className="text-xs text-text-muted">{e.status}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="mt-6 rounded-card border border-surface-border bg-surface p-6">
-          <h2 className="font-serif text-xl font-semibold">3. Pipeline (run in order)</h2>
+        <div className="mt-6 rounded-card border border-surface-border bg-surface p-4 sm:p-6">
+          <h2 className="font-serif text-lg sm:text-xl font-semibold">3. Pipeline (run in order)</h2>
           <p className="mt-1 text-sm text-text-secondary">
             Hit each endpoint manually first time, or wait for the cron schedule.
           </p>
@@ -69,8 +69,8 @@ export default function SettingsPage() {
           </ol>
         </div>
 
-        <div className="mt-6 rounded-card border border-surface-border bg-surface p-6">
-          <h2 className="font-serif text-xl font-semibold">4. Cron schedule (auto)</h2>
+        <div className="mt-6 rounded-card border border-surface-border bg-surface p-4 sm:p-6">
+          <h2 className="font-serif text-lg sm:text-xl font-semibold">4. Cron schedule (auto)</h2>
           <ul className="mt-3 space-y-1 text-sm text-text-secondary">
             <li>• Reddit ingest every 6h</li>
             <li>• TikTok ingest every 6h (offset 30min)</li>

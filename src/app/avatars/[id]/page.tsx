@@ -45,25 +45,25 @@ export default async function AvatarDetailPage({ params }: { params: { id: strin
 
   return (
     <Shell>
-      <div className="mx-auto max-w-5xl px-6 py-10">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-10">
         <Link href="/avatars" className="mb-4 inline-flex items-center gap-1 text-sm text-text-muted hover:text-accent-light">
           <Users className="h-3 w-3" /> All avatars
         </Link>
 
-        <div className="mb-8">
-          <h1 className="font-serif text-4xl font-semibold">{avatar.name}</h1>
-          <div className="mt-2 flex flex-wrap gap-3 text-sm text-text-secondary">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="font-serif text-3xl sm:text-4xl font-semibold break-words">{avatar.name}</h1>
+          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-text-secondary">
             <span>{avatar.age_range}</span>
             {avatar.gender_skew && <span>· {avatar.gender_skew}</span>}
             <span>· {avatar.market_size} market</span>
             <span>· confidence {avatar.confidence_score}/10</span>
             <span>· {avatar.citation_count ?? 0} sources</span>
           </div>
-          <p className="mt-4 max-w-2xl text-text-primary">{avatar.profile}</p>
+          <p className="mt-4 text-text-primary">{avatar.profile}</p>
 
           <a
             href={`/api/avatars/export?id=${avatar.id}`}
-            className="mt-5 inline-flex items-center gap-2 rounded-card bg-accent-gradient px-5 py-2.5 font-medium text-chocolate"
+            className="mt-5 inline-flex items-center gap-2 rounded-card bg-accent-gradient px-5 py-2.5 font-medium text-chocolate active:opacity-80"
           >
             <Download className="h-4 w-4" />
             Export creative brief
@@ -100,11 +100,11 @@ export default async function AvatarDetailPage({ params }: { params: { id: strin
 
         {hooks.length > 0 && (
           <Section title={`🪝 Hooks (${hooks.length})`}>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
               {hooks.map((h, i) => (
                 <div key={i} className="rounded-card border border-surface-border bg-chocolate-light/30 p-4">
                   <div className="mb-2 text-xs uppercase tracking-wider text-accent-light">{h.type}</div>
-                  <div className="font-serif text-lg text-text-primary">{h.text}</div>
+                  <div className="font-serif text-base sm:text-lg text-text-primary">{h.text}</div>
                   {h.follow_up && <div className="mt-2 text-sm text-text-secondary">→ {h.follow_up}</div>}
                   {h.why && <div className="mt-2 text-xs text-text-muted italic">{h.why}</div>}
                 </div>

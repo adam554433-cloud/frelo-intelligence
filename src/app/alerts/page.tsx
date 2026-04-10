@@ -26,10 +26,10 @@ export default async function AlertsPage() {
 
   return (
     <Shell>
-      <div className="mx-auto max-w-4xl px-6 py-10">
-        <div className="mb-8">
-          <div className="text-sm uppercase tracking-[0.2em] text-accent-light">alerts</div>
-          <h1 className="mt-2 font-serif text-4xl font-semibold">What changed in the last 24h.</h1>
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-6 sm:py-10">
+        <div className="mb-6 sm:mb-8">
+          <div className="text-xs sm:text-sm uppercase tracking-[0.2em] text-accent-light">alerts</div>
+          <h1 className="mt-2 font-serif text-3xl sm:text-4xl font-semibold">What changed in the last 24h.</h1>
         </div>
 
         {alerts.length === 0 ? (
@@ -41,16 +41,16 @@ export default async function AlertsPage() {
         ) : (
           <div className="space-y-3">
             {alerts.map((a) => (
-              <div key={a.id} className={`rounded-card border p-5 ${severityStyles[a.severity] ?? severityStyles.info}`}>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="font-serif text-lg font-semibold text-text-primary">{a.title}</div>
+              <div key={a.id} className={`rounded-card border p-4 sm:p-5 ${severityStyles[a.severity] ?? severityStyles.info}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-serif text-base sm:text-lg font-semibold text-text-primary">{a.title}</div>
                     {a.body && <p className="mt-1 text-sm text-text-secondary">{a.body}</p>}
                     <div className="mt-2 text-xs text-text-muted">
                       {new Date(a.created_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })} · {a.kind}
                     </div>
                   </div>
-                  <span className="rounded-pill bg-chocolate-light/40 px-2 py-0.5 text-xs uppercase text-text-muted">{a.severity}</span>
+                  <span className="shrink-0 rounded-pill bg-chocolate-light/40 px-2 py-0.5 text-[10px] sm:text-xs uppercase text-text-muted">{a.severity}</span>
                 </div>
               </div>
             ))}

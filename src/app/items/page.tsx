@@ -32,10 +32,10 @@ export default async function ItemsPage() {
 
   return (
     <Shell>
-      <div className="mx-auto max-w-6xl px-6 py-10">
-        <div className="mb-8">
-          <div className="text-sm uppercase tracking-[0.2em] text-accent-light">evidence</div>
-          <h1 className="mt-2 font-serif text-4xl font-semibold">Every quote. Every source. Grounded.</h1>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-10">
+        <div className="mb-6 sm:mb-8">
+          <div className="text-xs sm:text-sm uppercase tracking-[0.2em] text-accent-light">evidence</div>
+          <h1 className="mt-2 font-serif text-3xl sm:text-4xl font-semibold">Every quote. Every source. Grounded.</h1>
         </div>
 
         {items.length === 0 ? (
