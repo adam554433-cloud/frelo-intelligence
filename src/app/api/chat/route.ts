@@ -14,7 +14,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Semantic search for grounding (Voyage similarities run 0.4-0.7 range)
-    const citations = await searchItems(message, { limit: 12, minSim: 0.4, minRelevance: 4 });
+    let citations: Awaited<ReturnType<typeof searchItems>> = [];
+    let searchError: string | null = null;
+    try {
+      citations = await searchItems(message, { limit: 12, minSim: 0.4, minRelevance: 4 });
+    } catch (err) {
+      searchError = err instanceof Error ? err.message : "unknown";
+      console.error("[chat] searchItems threw:", searchError);
+    }
     const evidenceBlock = formatCitations(citations);
 
     const answer = await ask({
@@ -41,6 +48,7 @@ ${evidenceBlock}`,
       answer,
       citations,
       evidence_count: citations.length,
+      debug_search_error: searchError,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "unknown error";
