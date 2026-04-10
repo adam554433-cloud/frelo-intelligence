@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "./supabase";
-import { embed } from "./embed";
+import { embedQuery } from "./embed";
 
 export interface RagCitation {
   id: number;
@@ -21,7 +21,7 @@ export async function searchItems(query: string, opts: { limit?: number; minSim?
   const minRelevance = opts.minRelevance ?? 0;
 
   try {
-    const vector = await embed(query);
+    const vector = await embedQuery(query);
     const { data, error } = await db.rpc("intel_search_items", {
       query_embedding: vector as unknown as string,
       match_threshold: minSim,

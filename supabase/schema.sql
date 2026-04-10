@@ -53,7 +53,7 @@ create table if not exists intel_items (
   analyzed_at timestamptz,
 
   -- Semantic search
-  embedding vector(1536),                  -- OpenAI text-embedding-3-small dimension
+  embedding vector(1024),                  -- Voyage AI voyage-3 dimension
   embedded_at timestamptz
 );
 
@@ -73,7 +73,7 @@ create table if not exists intel_clusters (
   label text,
   summary text,
   size int default 0,
-  centroid vector(1536),
+  centroid vector(1024),
   avg_relevance numeric,
   platforms jsonb default '[]'::jsonb,     -- list of platforms represented
   cross_platform_score int,                -- 1-10: how many platforms validate this cluster
@@ -237,7 +237,7 @@ create index if not exists intel_events_kind_idx on intel_events(kind, created_a
 -- RPC: semantic search helper
 -- ============================================================
 create or replace function intel_search_items(
-  query_embedding vector(1536),
+  query_embedding vector(1024),
   match_threshold float default 0.75,
   match_count int default 20,
   min_relevance int default 0
