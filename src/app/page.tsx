@@ -10,20 +10,21 @@ export const dynamic = "force-dynamic";
 async function getStats() {
   try {
     const db = supabaseAdmin();
-    const [itemsRes, avatarsRes, hypsRes, alertsRes, sourcesRes, recentAlertsRes] = await Promise.all([
+    const [itemsRes, avatarsRes, hypsRes, alertsListRes, sourcesRes, recentAlertsRes] = await Promise.all([
       db.from("intel_items").select("*", { count: "exact", head: true }),
       db.from("intel_avatars").select("*", { count: "exact", head: true }).eq("status", "active"),
       db.from("intel_hypotheses").select("*", { count: "exact", head: true }),
-      db.from("intel_alerts").select("*", { count: "exact", head: true }).eq("seen", false),
+      db.from("intel_alerts").select("seen"),
       db.from("intel_sources").select("*", { count: "exact", head: true }),
       db.from("intel_alerts").select("id, title, body, severity, created_at").order("created_at", { ascending: false }).limit(3),
     ]);
+    const unreadAlerts = ((alertsListRes.data as Array<{ seen: boolean }>) ?? []).filter((a) => !a.seen).length;
 
     return {
       items: itemsRes.count ?? 0,
       avatars: avatarsRes.count ?? 0,
       hypotheses: hypsRes.count ?? 0,
-      alerts: alertsRes.count ?? 0,
+      alerts: unreadAlerts,
       sources: sourcesRes.count ?? 0,
       recentAlerts: (recentAlertsRes.data ?? []) as Array<{ id: number; title: string; body: string; severity: string; created_at: string }>,
       ok: true,

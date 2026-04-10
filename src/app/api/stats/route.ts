@@ -7,25 +7,28 @@ export async function GET() {
   try {
     const db = supabaseAdmin();
 
-    const [itemsRes, avatarsRes, hypsRes, alertsRes, sourcesRes] = await Promise.all([
+    const [itemsRes, avatarsRes, hypsCountRes, hypsDataRes, alertsRes, sourcesRes] = await Promise.all([
       db.from("intel_items").select("*", { count: "exact", head: true }),
       db.from("intel_avatars").select("*", { count: "exact", head: true }).eq("status", "active"),
-      db.from("intel_hypotheses").select("id, status", { count: "exact" }),
-      db.from("intel_alerts").select("*", { count: "exact", head: true }).eq("seen", false),
+      db.from("intel_hypotheses").select("*", { count: "exact", head: true }),
+      db.from("intel_hypotheses").select("status"),
+      db.from("intel_alerts").select("seen"),
       db.from("intel_sources").select("*", { count: "exact", head: true }),
     ]);
 
     const hypothesesByStatus: Record<string, number> = {};
-    for (const h of (hypsRes.data as Array<{ status: string }>) ?? []) {
+    for (const h of (hypsDataRes.data as Array<{ status: string }>) ?? []) {
       hypothesesByStatus[h.status] = (hypothesesByStatus[h.status] ?? 0) + 1;
     }
+
+    const unreadAlerts = ((alertsRes.data as Array<{ seen: boolean }>) ?? []).filter((a) => !a.seen).length;
 
     return NextResponse.json({
       items: itemsRes.count ?? 0,
       avatars: avatarsRes.count ?? 0,
-      hypotheses_total: hypsRes.count ?? 0,
+      hypotheses_total: hypsCountRes.count ?? 0,
       hypotheses_by_status: hypothesesByStatus,
-      unread_alerts: alertsRes.count ?? 0,
+      unread_alerts: unreadAlerts,
       sources: sourcesRes.count ?? 0,
     });
   } catch (err) {
