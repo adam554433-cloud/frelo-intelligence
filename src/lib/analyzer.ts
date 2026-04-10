@@ -72,6 +72,7 @@ export async function runAnalyzer(opts: { limit?: number; minRelevance?: number 
     .from("intel_items")
     .select("id, content, platform")
     .is("analyzed_at", null)
+    .order("id", { ascending: false })
     .limit(limit);
 
   if (error) throw new Error(`Fetch unanalyzed items: ${error.message}`);
