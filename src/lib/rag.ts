@@ -22,10 +22,9 @@ export async function searchItems(query: string, opts: { limit?: number; minSim?
 
   try {
     const vector = await embedQuery(query);
-    // pgvector expects string format "[1,2,3]" via PostgREST
-    const vectorStr = `[${vector.join(",")}]`;
+    // PostgREST RPC accepts vector as a JSON array directly
     const { data, error } = await db.rpc("intel_search_items", {
-      query_embedding: vectorStr,
+      query_embedding: vector,
       match_threshold: minSim,
       match_count: limit,
       min_relevance: minRelevance,
