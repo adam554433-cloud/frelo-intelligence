@@ -13,8 +13,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "message required" }, { status: 400 });
     }
 
-    // Semantic search for grounding
-    const citations = await searchItems(message, { limit: 12, minSim: 0.55, minRelevance: 4 });
+    // Semantic search for grounding (Voyage similarities run 0.4-0.7 range)
+    const citations = await searchItems(message, { limit: 12, minSim: 0.4, minRelevance: 4 });
     const evidenceBlock = formatCitations(citations);
 
     const answer = await ask({

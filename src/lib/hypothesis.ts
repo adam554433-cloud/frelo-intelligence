@@ -77,11 +77,11 @@ export async function testHypothesis(hypothesisId: number): Promise<{
   await db.from("intel_hypotheses").update({ status: "testing" }).eq("id", hypothesisId);
 
   // Semantic search for supporting evidence (the statement itself)
-  const supporting = await searchItems(hyp.statement, { limit: 15, minSim: 0.55, minRelevance: 4 });
+  const supporting = await searchItems(hyp.statement, { limit: 15, minSim: 0.4, minRelevance: 4 });
 
   // Semantic search for refuting evidence (inverted)
   const antiQuery = `evidence against: ${hyp.statement}`;
-  const refuting = await searchItems(antiQuery, { limit: 15, minSim: 0.55, minRelevance: 4 });
+  const refuting = await searchItems(antiQuery, { limit: 15, minSim: 0.4, minRelevance: 4 });
 
   // Format evidence for LLM verdict
   const supText = supporting.map((s, i) => `[sup${i + 1}] ${s.content.slice(0, 500)}`).join("\n\n");
