@@ -120,7 +120,7 @@ export async function synthesizeFocusedAvatars(opts: {
 
   const raw = await ask({
     tier: "deep",
-    maxTokens: 8000,
+    maxTokens: 16000,
     temperature: 0.35,
     system: `You are a world-class consumer researcher for frelo. Your task: given a CENTRAL ANGLE and a collection of real consumer voice data, identify 2-${maxAvatars} DISTINCT sub-avatars that exist WITHIN that angle.
 
