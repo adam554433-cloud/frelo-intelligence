@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ask } from "@/lib/claude";
 import { BRAND_CONTEXT } from "@/lib/brand";
+import { searchItems, formatCitations } from "@/lib/rag";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-// Day 1: basic grounded Q&A against brand context only.
-// Day 2+: add semantic search over intel_items for true RAG.
 export async function POST(req: NextRequest) {
   try {
     const { message } = await req.json();
@@ -14,25 +13,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "message required" }, { status: 400 });
     }
 
+    // Semantic search for grounding
+    const citations = await searchItems(message, { limit: 12, minSim: 0.55, minRelevance: 4 });
+    const evidenceBlock = formatCitations(citations);
+
     const answer = await ask({
       tier: "deep",
-      maxTokens: 2000,
+      maxTokens: 2500,
       temperature: 0.4,
-      system: `You are frelo's Intelligence Engine — a CMO-level strategist who only cites real evidence.
-Today you have access to the frelo brand context below. In Day 2 you will also get access to a live semantic search index of scraped consumer voice data.
+      system: `You are frelo's Intelligence Engine — a CMO-level strategist. You have two sources of truth:
+1. The frelo brand context (positioning, benefits, compliance, voice)
+2. Real consumer voice data from Reddit, TikTok, YouTube, Trustpilot — scraped and analyzed for frelo relevance
 
-When the user asks something that depends on consumer data that isn't yet ingested, say so honestly: "No evidence yet — ingestion starts Day 2. Based on brand context only: ..."
+You MUST cite evidence using [src1], [src2], etc. when making claims about what consumers think, feel, or say. Never invent quotes. If no evidence exists for a claim, say so.
 
-Be direct, specific, and unpretentious. Never invent quotes or stats.
+Be direct, specific, unpretentious. No filler. No hype.
 
-${BRAND_CONTEXT}`,
+BRAND CONTEXT:
+${BRAND_CONTEXT}
+
+EVIDENCE FROM INTEL DATABASE:
+${evidenceBlock}`,
       user: message,
     });
 
     return NextResponse.json({
       answer,
-      citations: [],
-      note: "Day 1: grounded in brand context only. Full RAG over scraped data comes Day 2.",
+      citations,
+      evidence_count: citations.length,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "unknown error";

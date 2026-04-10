@@ -1,42 +1,79 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Shell } from "@/components/Shell";
-import { FlaskConical, Loader2 } from "lucide-react";
+import { FlaskConical, Loader2, Play } from "lucide-react";
 
-interface Decomposition {
-  restated: string;
+interface Hypothesis {
+  id: number;
+  statement: string;
+  status: "open" | "testing" | "validated" | "refuted" | "inconclusive";
   sub_claims: string[];
-  queries: Record<string, string[]>;
-  counter_evidence_prompts: string[];
-  success_criteria: string;
+  confidence_score: number | null;
+  verdict: string | null;
+  created_at: string;
 }
 
+const statusStyles: Record<string, string> = {
+  open: "bg-text-muted/20 text-text-secondary",
+  testing: "bg-warning/20 text-warning",
+  validated: "bg-success/20 text-success",
+  refuted: "bg-danger/20 text-danger",
+  inconclusive: "bg-accent/20 text-accent-light",
+};
+
 export default function HypothesesPage() {
+  const [list, setList] = useState<Hypothesis[]>([]);
   const [statement, setStatement] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<Decomposition | null>(null);
+  const [testingId, setTestingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function submit() {
+  async function refresh() {
+    try {
+      const res = await fetch("/api/hypothesis");
+      const data = await res.json();
+      setList(data.hypotheses ?? []);
+    } catch {}
+  }
+
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  async function create() {
     if (!statement.trim() || loading) return;
     setLoading(true);
     setError(null);
-    setResult(null);
     try {
       const res = await fetch("/api/hypothesis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ statement }),
+        body: JSON.stringify({ statement, persist: true }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      setResult(data);
+      setStatement("");
+      await refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "unknown error");
     } finally {
       setLoading(false);
     }
+  }
+
+  async function test(id: number) {
+    if (testingId) return;
+    setTestingId(id);
+    try {
+      await fetch("/api/hypothesis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hypothesis_id: id, action: "test" }),
+      });
+      await refresh();
+    } catch {}
+    setTestingId(null);
   }
 
   return (
@@ -48,7 +85,8 @@ export default function HypothesesPage() {
         </div>
         <h1 className="font-serif text-4xl font-semibold">What do you believe?</h1>
         <p className="mt-2 text-text-secondary">
-          State an assumption. We&apos;ll decompose it into testable sub-claims and generate queries to prove or disprove it.
+          State an assumption. The engine decomposes it, generates search queries, and ultimately validates or refutes it
+          against real evidence.
         </p>
 
         <div className="mt-8">
@@ -60,12 +98,12 @@ export default function HypothesesPage() {
             className="w-full rounded-card border border-surface-border bg-surface px-5 py-4 text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none"
           />
           <button
-            onClick={submit}
+            onClick={create}
             disabled={loading || !statement.trim()}
             className="mt-3 flex items-center gap-2 rounded-card bg-accent-gradient px-6 py-3 font-medium text-chocolate transition-opacity disabled:opacity-40"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FlaskConical className="h-4 w-4" />}
-            Decompose & plan tests
+            Create hypothesis
           </button>
         </div>
 
@@ -73,73 +111,61 @@ export default function HypothesesPage() {
           <div className="mt-6 rounded-card border border-danger/30 bg-danger/10 p-4 text-danger">{error}</div>
         )}
 
-        {result && (
-          <div className="mt-10 space-y-6">
-            <Section title="Restated">
-              <p className="text-text-primary">{result.restated}</p>
-            </Section>
-
-            <Section title={`Sub-claims (${result.sub_claims.length})`}>
-              <ol className="space-y-2">
-                {result.sub_claims.map((c, i) => (
-                  <li key={i} className="flex gap-3 text-text-primary">
-                    <span className="text-accent-light">{i + 1}.</span>
-                    <span>{c}</span>
-                  </li>
-                ))}
-              </ol>
-            </Section>
-
-            <Section title="Search queries">
-              <div className="space-y-4">
-                {Object.entries(result.queries).map(([platform, queries]) => (
-                  <div key={platform}>
-                    <div className="mb-2 text-xs uppercase tracking-wider text-accent-light">{platform}</div>
-                    <div className="flex flex-wrap gap-2">
-                      {queries.map((q, i) => (
-                        <span
-                          key={i}
-                          className="rounded-pill border border-surface-border bg-chocolate-light/40 px-3 py-1 text-xs text-text-secondary"
-                        >
-                          {q}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Section>
-
-            <Section title="Counter-evidence">
-              <ul className="space-y-2">
-                {result.counter_evidence_prompts.map((p, i) => (
-                  <li key={i} className="text-text-secondary">
-                    — {p}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-
-            <Section title="Success criteria">
-              <p className="text-text-primary">{result.success_criteria}</p>
-            </Section>
-
-            <div className="rounded-card border border-dashed border-surface-border bg-surface/40 p-5 text-sm text-text-muted">
-              <strong className="text-text-secondary">Day 2:</strong> These queries will auto-run against
-              Reddit/TikTok/Amazon/Trustpilot and return evidence items with cross-platform validation scores.
+        <div className="mt-10 space-y-4">
+          {list.length === 0 ? (
+            <div className="rounded-card border border-dashed border-surface-border p-8 text-center text-text-muted">
+              No hypotheses yet. Write one above.
             </div>
-          </div>
-        )}
+          ) : (
+            list.map((h) => (
+              <div key={h.id} className="rounded-card border border-surface-border bg-surface p-5">
+                <div className="mb-2 flex items-start justify-between gap-4">
+                  <p className="flex-1 font-serif text-lg text-text-primary">{h.statement}</p>
+                  <span className={`shrink-0 rounded-pill px-3 py-1 text-xs uppercase ${statusStyles[h.status]}`}>
+                    {h.status}
+                  </span>
+                </div>
+
+                {h.sub_claims && h.sub_claims.length > 0 && (
+                  <div className="mt-3">
+                    <div className="text-xs uppercase tracking-wider text-text-muted">Sub-claims</div>
+                    <ol className="mt-1 space-y-1 text-sm text-text-secondary">
+                      {h.sub_claims.map((c, i) => (
+                        <li key={i}>
+                          {i + 1}. {c}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+
+                {h.verdict && (
+                  <div className="mt-3 rounded-card bg-chocolate-light/30 p-3">
+                    <div className="text-xs uppercase tracking-wider text-accent-light">
+                      Verdict · confidence {h.confidence_score ?? "?"}%
+                    </div>
+                    <p className="mt-1 text-sm text-text-primary">{h.verdict}</p>
+                  </div>
+                )}
+
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-xs text-text-muted">
+                    {new Date(h.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                  <button
+                    onClick={() => test(h.id)}
+                    disabled={testingId === h.id || h.status === "testing"}
+                    className="flex items-center gap-1 rounded-pill border border-accent/30 px-3 py-1 text-xs text-accent-light transition-colors hover:bg-accent/10 disabled:opacity-40"
+                  >
+                    {testingId === h.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
+                    {h.status === "open" ? "Test now" : "Re-test"}
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </Shell>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-card border border-surface-border bg-surface p-5">
-      <div className="mb-3 text-xs uppercase tracking-wider text-accent-light">{title}</div>
-      {children}
-    </div>
   );
 }

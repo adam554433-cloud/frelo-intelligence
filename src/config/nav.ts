@@ -3,6 +3,7 @@ export const nav = [
   { id: "chat", label: "Ask Anything", href: "/chat", icon: "MessageSquare" },
   { id: "avatars", label: "Avatars", href: "/avatars", icon: "Users" },
   { id: "hypotheses", label: "Hypotheses", href: "/hypotheses", icon: "FlaskConical" },
+  { id: "simulate", label: "Simulate", href: "/simulate", icon: "Theater" },
   { id: "alerts", label: "Alerts", href: "/alerts", icon: "Bell" },
   { id: "items", label: "Evidence", href: "/items", icon: "Database" },
   { id: "competitors", label: "Competitors", href: "/competitors", icon: "Swords" },

@@ -1,0 +1,45 @@
+import { supabaseAdmin } from "./supabase";
+import { embed } from "./embed";
+
+export interface RagCitation {
+  id: number;
+  content: string;
+  platform: string;
+  url: string | null;
+  similarity: number;
+  frelo_relevance: number | null;
+}
+
+/**
+ * Semantic search over intel_items using pgvector.
+ * Falls back gracefully if no embeddings exist yet.
+ */
+export async function searchItems(query: string, opts: { limit?: number; minSim?: number; minRelevance?: number } = {}): Promise<RagCitation[]> {
+  const db = supabaseAdmin();
+  const limit = opts.limit ?? 12;
+  const minSim = opts.minSim ?? 0.6;
+  const minRelevance = opts.minRelevance ?? 0;
+
+  try {
+    const vector = await embed(query);
+    const { data, error } = await db.rpc("intel_search_items", {
+      query_embedding: vector as unknown as string,
+      match_threshold: minSim,
+      match_count: limit,
+      min_relevance: minRelevance,
+    });
+
+    if (error) throw error;
+    return (data ?? []) as RagCitation[];
+  } catch (err) {
+    console.error("RAG search error:", err);
+    return [];
+  }
+}
+
+export function formatCitations(citations: RagCitation[]): string {
+  if (citations.length === 0) return "(no evidence found in the intel database — answer from brand context only)";
+  return citations
+    .map((c, i) => `[src${i + 1}] (${c.platform}, relevance=${c.frelo_relevance ?? "?"}) ${c.content.slice(0, 700)}`)
+    .join("\n\n");
+}

@@ -2,12 +2,21 @@
 
 import { useState } from "react";
 import { Shell } from "@/components/Shell";
-import { Send, Loader2, Sparkles } from "lucide-react";
+import { Send, Loader2, Sparkles, ExternalLink } from "lucide-react";
+
+interface Citation {
+  id: number;
+  content: string;
+  platform: string;
+  url: string | null;
+  similarity: number;
+  frelo_relevance: number | null;
+}
 
 interface Message {
   role: "user" | "assistant";
   content: string;
-  note?: string;
+  citations?: Citation[];
 }
 
 const EXAMPLES = [
@@ -35,7 +44,7 @@ export default function ChatPage() {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      setMessages((m) => [...m, { role: "assistant", content: data.answer, note: data.note }]);
+      setMessages((m) => [...m, { role: "assistant", content: data.answer, citations: data.citations ?? [] }]);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "unknown error";
       setMessages((m) => [...m, { role: "assistant", content: `Error: ${msg}` }]);
@@ -84,14 +93,40 @@ export default function ChatPage() {
                 {m.role === "user" ? "you" : "frelo intelligence"}
               </div>
               <div className="whitespace-pre-wrap text-text-primary">{m.content}</div>
-              {m.note && <div className="mt-2 text-xs text-text-muted italic">{m.note}</div>}
+
+              {m.citations && m.citations.length > 0 && (
+                <details className="mt-4 border-t border-surface-border pt-3">
+                  <summary className="cursor-pointer text-xs uppercase tracking-wider text-accent-light">
+                    {m.citations.length} citations
+                  </summary>
+                  <div className="mt-3 space-y-2">
+                    {m.citations.map((c, idx) => (
+                      <a
+                        key={c.id}
+                        href={c.url ?? "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block rounded-card border border-surface-border bg-chocolate-light/30 p-3 text-xs transition-colors hover:border-accent/30"
+                      >
+                        <div className="flex items-center gap-2 text-accent-light">
+                          <span className="uppercase">[src{idx + 1}]</span>
+                          <span>{c.platform}</span>
+                          {c.frelo_relevance !== null && <span className="text-text-muted">· {c.frelo_relevance}/10</span>}
+                          <ExternalLink className="ml-auto h-3 w-3" />
+                        </div>
+                        <div className="mt-1 line-clamp-2 text-text-secondary">{c.content}</div>
+                      </a>
+                    ))}
+                  </div>
+                </details>
+              )}
             </div>
           ))}
 
           {loading && (
             <div className="flex items-center gap-2 text-sm text-text-secondary">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Thinking...
+              Searching intel database + thinking...
             </div>
           )}
         </div>
