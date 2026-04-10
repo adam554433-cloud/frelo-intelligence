@@ -8,11 +8,11 @@ export async function GET() {
     const db = supabaseAdmin();
 
     const [itemsRes, avatarsRes, hypsRes, alertsRes, sourcesRes] = await Promise.all([
-      db.from("intel_items").select("id", { count: "exact", head: true }),
-      db.from("intel_avatars").select("id", { count: "exact", head: true }).eq("status", "active"),
+      db.from("intel_items").select("*", { count: "exact", head: true }),
+      db.from("intel_avatars").select("*", { count: "exact", head: true }).eq("status", "active"),
       db.from("intel_hypotheses").select("id, status", { count: "exact" }),
-      db.from("intel_alerts").select("id", { count: "exact", head: true }).eq("seen", false),
-      db.from("intel_sources").select("id", { count: "exact", head: true }),
+      db.from("intel_alerts").select("*", { count: "exact", head: true }).eq("seen", false),
+      db.from("intel_sources").select("*", { count: "exact", head: true }),
     ]);
 
     const hypothesesByStatus: Record<string, number> = {};
