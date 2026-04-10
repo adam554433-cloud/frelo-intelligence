@@ -26,12 +26,22 @@ export async function ingest(platform: Platform, query: string, hypothesisId?: n
   try {
     const items = await runScraper(platform, query, 200);
 
-    // Batch upsert with dedup via (platform, external_id) unique index
+    // Dedup via pre-check (partial unique index means onConflict won't work cleanly)
+    const externalIds = items.map((it) => it.external_id);
+    const { data: existing } = await db
+      .from("intel_items")
+      .select("external_id")
+      .eq("platform", platform)
+      .in("external_id", externalIds);
+
+    const existingSet = new Set((existing ?? []).map((e) => e.external_id as string));
+    const newItems = items.filter((it) => !existingSet.has(it.external_id));
+
     let inserted = 0;
-    let chunkErrors: string[] = [];
+    const chunkErrors: string[] = [];
     const CHUNK = 50;
-    for (let i = 0; i < items.length; i += CHUNK) {
-      const chunk = items.slice(i, i + CHUNK).map((it) => ({
+    for (let i = 0; i < newItems.length; i += CHUNK) {
+      const chunk = newItems.slice(i, i + CHUNK).map((it) => ({
         source_id: source.id,
         platform: it.platform,
         external_id: it.external_id,
@@ -45,11 +55,11 @@ export async function ingest(platform: Platform, query: string, hypothesisId?: n
 
       const { data: insertedRows, error } = await db
         .from("intel_items")
-        .upsert(chunk, { onConflict: "platform,external_id" })
+        .insert(chunk)
         .select("id");
 
       if (error) {
-        console.error(`[ingest ${platform} "${query}"] upsert chunk ${i} error:`, error.message, error.details, error.hint);
+        console.error(`[ingest ${platform} "${query}"] insert chunk ${i} error:`, error.message, error.details, error.hint);
         chunkErrors.push(error.message);
       } else {
         inserted += insertedRows?.length ?? 0;
