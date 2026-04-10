@@ -28,6 +28,7 @@ export async function ingest(platform: Platform, query: string, hypothesisId?: n
 
     // Batch upsert with dedup via (platform, external_id) unique index
     let inserted = 0;
+    let chunkErrors: string[] = [];
     const CHUNK = 50;
     for (let i = 0; i < items.length; i += CHUNK) {
       const chunk = items.slice(i, i + CHUNK).map((it) => ({
@@ -42,25 +43,32 @@ export async function ingest(platform: Platform, query: string, hypothesisId?: n
         engagement: it.engagement,
       }));
 
-      const { error } = await db
+      const { data: insertedRows, error } = await db
         .from("intel_items")
-        .upsert(chunk, { onConflict: "platform,external_id", ignoreDuplicates: true });
+        .upsert(chunk, { onConflict: "platform,external_id" })
+        .select("id");
 
-      if (!error) inserted += chunk.length;
+      if (error) {
+        console.error(`[ingest ${platform} "${query}"] upsert chunk ${i} error:`, error.message, error.details, error.hint);
+        chunkErrors.push(error.message);
+      } else {
+        inserted += insertedRows?.length ?? 0;
+      }
     }
 
     await db
       .from("intel_sources")
       .update({
-        status: "done",
+        status: chunkErrors.length > 0 && inserted === 0 ? "error" : "done",
         items_found: items.length,
+        error_message: chunkErrors.length > 0 ? chunkErrors.slice(0, 3).join(" | ") : null,
         finished_at: new Date().toISOString(),
       })
       .eq("id", source.id);
 
     await db.from("intel_events").insert({
       kind: "ingest_finished",
-      payload: { platform, query, found: items.length, inserted, source_id: source.id },
+      payload: { platform, query, found: items.length, inserted, errors: chunkErrors.length, source_id: source.id },
     });
 
     return { sourceId: source.id, found: items.length, inserted };
