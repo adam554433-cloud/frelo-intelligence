@@ -1,0 +1,12 @@
+export const nav = [
+  { id: "dashboard", label: "Dashboard", href: "/", icon: "LayoutDashboard" },
+  { id: "chat", label: "Ask Anything", href: "/chat", icon: "MessageSquare" },
+  { id: "avatars", label: "Avatars", href: "/avatars", icon: "Users" },
+  { id: "hypotheses", label: "Hypotheses", href: "/hypotheses", icon: "FlaskConical" },
+  { id: "alerts", label: "Alerts", href: "/alerts", icon: "Bell" },
+  { id: "items", label: "Evidence", href: "/items", icon: "Database" },
+  { id: "competitors", label: "Competitors", href: "/competitors", icon: "Swords" },
+  { id: "settings", label: "Settings", href: "/settings", icon: "Settings" },
+] as const;
+
+export type NavItem = (typeof nav)[number];

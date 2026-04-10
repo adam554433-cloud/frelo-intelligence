@@ -1,0 +1,21 @@
+{
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/ingest/run?source=reddit",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/ingest/run?source=tiktok",
+      "schedule": "30 */6 * * *"
+    },
+    {
+      "path": "/api/ingest/run?source=amazon",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/intel/delta",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}
