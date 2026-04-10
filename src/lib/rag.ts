@@ -22,14 +22,19 @@ export async function searchItems(query: string, opts: { limit?: number; minSim?
 
   try {
     const vector = await embedQuery(query);
+    // pgvector expects string format "[1,2,3]" via PostgREST
+    const vectorStr = `[${vector.join(",")}]`;
     const { data, error } = await db.rpc("intel_search_items", {
-      query_embedding: vector as unknown as string,
+      query_embedding: vectorStr,
       match_threshold: minSim,
       match_count: limit,
       min_relevance: minRelevance,
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error("RAG search RPC error:", error.message, error.details);
+      throw error;
+    }
     return (data ?? []) as RagCitation[];
   } catch (err) {
     console.error("RAG search error:", err);
