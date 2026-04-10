@@ -20,6 +20,42 @@ export async function POST(req: NextRequest) {
     min_relevance: 0,
   });
 
+  // Also try calling PostgREST directly via fetch, bypassing Supabase JS
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL + "/rest/v1/rpc/intel_search_items";
+  const directRes = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+    },
+    body: JSON.stringify({
+      query_embedding: vector,
+      match_threshold: -1,
+      match_count: 10,
+      min_relevance: 0,
+    }),
+  });
+  const directData = await directRes.json();
+
+  // Also try with string format
+  const vectorStr = `[${vector.join(",")}]`;
+  const directStrRes = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+    },
+    body: JSON.stringify({
+      query_embedding: vectorStr,
+      match_threshold: -1,
+      match_count: 10,
+      min_relevance: 0,
+    }),
+  });
+  const directStrData = await directStrRes.json();
+
   // Sanity checks on the vector
   const hasNaN = vector.some((v) => Number.isNaN(v));
   const hasInf = vector.some((v) => !Number.isFinite(v));
@@ -51,5 +87,15 @@ export async function POST(req: NextRequest) {
     })),
     raw_items_with_embedding: rawSelect?.length ?? 0,
     raw_error: rawErr,
+    direct_array: {
+      status: directRes.status,
+      count: Array.isArray(directData) ? directData.length : 0,
+      sample: Array.isArray(directData) ? directData.slice(0, 2).map((r: { similarity: number }) => r.similarity) : directData,
+    },
+    direct_string: {
+      status: directStrRes.status,
+      count: Array.isArray(directStrData) ? directStrData.length : 0,
+      sample: Array.isArray(directStrData) ? directStrData.slice(0, 2).map((r: { similarity: number }) => r.similarity) : directStrData,
+    },
   });
 }
