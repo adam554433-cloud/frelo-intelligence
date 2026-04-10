@@ -12,37 +12,25 @@ export async function POST(req: NextRequest) {
   // Step 1: embed
   const vector = await embedQuery(query);
 
-  // Step 2: direct RPC with the vector
+  // No threshold, no relevance filter — show what the vector actually matches
   const rpcResult = await db.rpc("intel_search_items", {
     query_embedding: vector,
-    match_threshold: 0.3,
-    match_count: 5,
-    min_relevance: 4,
-  });
-
-  // Step 3: try passing as string format
-  const vectorStr = `[${vector.join(",")}]`;
-  const rpcResultStr = await db.rpc("intel_search_items", {
-    query_embedding: vectorStr,
-    match_threshold: 0.3,
-    match_count: 5,
-    min_relevance: 4,
+    match_threshold: -1,
+    match_count: 10,
+    min_relevance: 0,
   });
 
   return NextResponse.json({
     query,
     vector_len: vector.length,
     vector_first: vector.slice(0, 3),
-    vector_sum: vector.slice(0, 10).reduce((a, b) => a + b, 0),
-    as_array: {
-      error: rpcResult.error,
-      count: rpcResult.data?.length ?? 0,
-      data: rpcResult.data,
-    },
-    as_string: {
-      error: rpcResultStr.error,
-      count: rpcResultStr.data?.length ?? 0,
-      data: rpcResultStr.data,
-    },
+    error: rpcResult.error,
+    count: rpcResult.data?.length ?? 0,
+    top: (rpcResult.data ?? []).map((r: { similarity: number; frelo_relevance: number; platform: string; content: string }) => ({
+      similarity: r.similarity,
+      frelo_relevance: r.frelo_relevance,
+      platform: r.platform,
+      snippet: r.content.slice(0, 100),
+    })),
   });
 }
