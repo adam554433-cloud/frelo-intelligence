@@ -2,7 +2,8 @@ import { Shell } from "@/components/Shell";
 import { supabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Download, Users } from "lucide-react";
+import { Users } from "lucide-react";
+import { AvatarActions } from "@/components/AvatarActions";
 
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
@@ -61,13 +62,7 @@ export default async function AvatarDetailPage({ params }: { params: { id: strin
           </div>
           <p className="mt-4 text-text-primary">{avatar.profile}</p>
 
-          <a
-            href={`/api/avatars/export?id=${avatar.id}`}
-            className="mt-5 inline-flex items-center gap-2 rounded-card bg-accent-gradient px-5 py-2.5 font-medium text-chocolate active:opacity-80"
-          >
-            <Download className="h-4 w-4" />
-            Export creative brief
-          </a>
+          <AvatarActions avatarId={avatar.id} avatarStatus={avatar.status ?? "active"} />
         </div>
 
         <Section title="🔴 Pain points">

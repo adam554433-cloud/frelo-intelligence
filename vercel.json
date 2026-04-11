@@ -18,12 +18,16 @@
       "schedule": "0 4 * * *"
     },
     {
-      "path": "/api/pipeline/process",
-      "schedule": "0 5 * * *"
+      "path": "/api/pipeline/drain",
+      "schedule": "0 */3 * * *"
     },
     {
       "path": "/api/intel/delta",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/intel/daily-digest?action=generate",
+      "schedule": "30 6 * * *"
     }
   ]
 }
